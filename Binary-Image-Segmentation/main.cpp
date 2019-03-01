@@ -66,7 +66,7 @@ int inspect(vector<int> t, int l) {
 	}
 	return 0;
 }
-void BFS(queue<int> qcolor, vector<pair<int,int>> comb1, vector< list< pair<int, int> > > adjlist, Mat out_image, int width) {
+void BFS(queue<int> qcolor, vector<pair<int,int>> comb1, vector< list< pair<int, int> > > &adjlist, Mat &out_image, int width) {
 	while (!qcolor.empty()) {
 
 		int last = qcolor.front();
@@ -74,22 +74,22 @@ void BFS(queue<int> qcolor, vector<pair<int,int>> comb1, vector< list< pair<int,
 
 			list< pair<int, int> >::iterator itr = adjlist[last].begin();
 			while (itr != adjlist[last].end()) {
-			if ((comb1[(*itr).first].second == 0) && (*itr).second > 0) {
+				if ((comb1[(*itr).first].second == 0) && (*itr).second > 0) {
 
-				Vec3b pixel2;
-				pixel2[0] = 0;
-				pixel2[1] = 0;
-				pixel2[2] = 225;
-				int x3, x4;
-				x3 = ((*itr).first)/ width;
-				x4 = ((*itr).first) % width;
-				out_image.at < Vec3b >(x3, x4) = pixel2;
+					Vec3b pixel2;
+					pixel2[0] = 0;
+					pixel2[1] = 0;
+					pixel2[2] = 225;
+					int x3, x4;
+					x3 = ((*itr).first)/ width;
+					x4 = ((*itr).first) % width;
+					out_image.at < Vec3b >(x3, x4) = pixel2;
 
-				qcolor.push((*itr).first);
-				comb1[(*itr).first].second = 1;
+					qcolor.push((*itr).first);
+					comb1[(*itr).first].second = 1;
 
-			}
-
+				}
+				++itr;
 		}
 	}
 }
@@ -106,17 +106,21 @@ void max_flow(vector< list< pair<int, int> > > &adjlist, vector<int> &source,vec
 	comb1 = anotherVisitedPixel;
 	int visitedToken = 1;
 	vector<int> route;
-	vector<int>::iterator it;
+	//cout << "inside max flow" << endl;
 	bool visited;
 	visited = true;
 	while (visited == true) {
+		//cout << "inside first while loop" << endl;
 		visited = false;
 		while (!queue.empty()) {
+			//cout << "inside 2nd while loop" << endl;
 			again: vector<int> pathvector;
 			pathvector = queue.front();
 			queue.pop();
 			int lastelement = pathvector.back();
+			//cout << "last element" << lastelement << endl;
 			if (inspect(sink, lastelement) == 1) {
+				//cout << "inside if inspect" << endl;
 				route.clear();
 				route = pathvector;
 				visited = true;
@@ -139,50 +143,60 @@ void max_flow(vector< list< pair<int, int> > > &adjlist, vector<int> &source,vec
 			}
 			list< pair<int, int> >::iterator itr1 = adjlist[lastelement].begin();
 			while (itr1 != adjlist[lastelement].end()) {
-				//printf(" -> %d(%d)", (*itr).first, (*itr).second);
-				++itr1;
-				if ((inspect1(pathvector, (*itr1).first)) && ((*itr1).second) > 0 && (anotherVisitedPixel[(*itr1).first].second) == 0){
+				//cout << "inside itr1 " << endl;
+				//printf(" -> %d(%d)", (*itr1).first, (*itr1).second);
+				
+				if ((inspect1(pathvector, (*itr1).first)) && (((*itr1).second) > 0) && ((anotherVisitedPixel[(*itr1).first].second) == 0)){
+					//cout << "inside itr1 if" << endl;
 					vector < int > path(pathvector);
 					path.push_back((*itr1).first);
 					(anotherVisitedPixel[(*itr1).first].second) = 1;
 					queue.push(path);
 				}
+				++itr1;
 			}
+			//cout << "out itr1 " << endl;
 		}
 		if (visited == true) {
 			int minNum = 99999999;
 			for (int i = 0; i < route.size() - 1; i++) {
 				list< pair<int, int> >::iterator itr2 = adjlist[route[i]].begin();
 				while(itr2 != adjlist[route[i]].end()){
+					//cout << "inside itr2 flow" << endl;
 					if ((*itr2).first == route[i + 1]) {
 						if ((*itr2).second < minNum) {
 							minNum = (*itr2).second;
 						}
 					}
+					++itr2;
 				}
 			}
 
 			for (int i = 0; i < route.size() - 1; i++) {
 				list< pair<int, int> >::iterator itr3 = adjlist[route[i]].begin();
 				while (itr3 != adjlist[route[i]].end()) {
+					//cout << "inside itr3 flow" << endl;
 					if ((*itr3).first == route[i + 1]) {
 						(*itr3).second = (*itr3).second - minNum;
 
 					}
+					++itr3;
 				}
 			}
 			for (int i = 0; i < route.size() - 1; i++) {
 				list< pair<int, int> >::iterator itr4 = adjlist[route[i+1]].begin();
 				while (itr4 != adjlist[route[i+1]].end()) {
+					//cout << "inside itr4" << endl;
 					if ((*itr4).first == route[i]) {
 						(*itr4).second = (*itr4).second + minNum;
 					}
+					++itr4;
 				}
 
 			}
 		}
 	}
-
+	//cout << "inside coloring" << endl;
 	//coloring
 	for (int i = 0; i < height; i++){
 		for (int j = 0; j < width; j++){
@@ -224,7 +238,7 @@ int main(int argc, char** argv)
 	Mat gradient;
 	Mat grad_x, grad_y;
 
-	in_image = imread("testimage.png"/*argv[1]*/);
+	in_image = imread("simple.png"/*argv[1]*/);
 	if (!in_image.data)
 	{
 		cout << "Could not load input image!!!" << endl;
@@ -239,7 +253,7 @@ int main(int argc, char** argv)
 	addWeighted(grad_x, 0.5, grad_y, 0.5, 0, gradient);
 	// the output image
 	Mat out_image = in_image.clone();
-	ifstream f("config2.txt"/*argv[2]*/);
+	ifstream f("config.txt"/*argv[2]*/);
 	if (!f) {
 		cout << "Could not load initial mask file!!!" << endl;
 		return -1;
@@ -295,9 +309,9 @@ int main(int argc, char** argv)
 			}
 		}
 	}
-	cout << "total pixel" << pixelCount << endl;
+	/*cout << "total pixel" << pixelCount << endl;
 	cout << "maxIntPixel" << maxIntPixel << endl;
-	cout << "row " << "column " << "weights" << endl;
+	cout << "row " << "column " << "weights" << endl;*/
 	vector< list< pair<int, int> > > adjlist(total_pixel);
 	vector<pair<int, int>> visitedPixel, anotherVisitedPixel;
 	//weight calculation

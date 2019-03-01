@@ -1,4 +1,3 @@
-﻿  pch.cpp
-  main.cpp
-c:\users\manan\source\repos\binary-image-segmentation\binary-image-segmentation\main.cpp(115): warning C4102: 'again': unreferenced label
+﻿  main.cpp
+c:\users\manan\source\repos\binary-image-segmentation\binary-image-segmentation\main.cpp(117): warning C4102: 'again': unreferenced label
   Binary-Image-Segmentation.vcxproj -> C:\Users\Manan\source\repos\Binary-Image-Segmentation\x64\Debug\Binary-Image-Segmentation.exe
